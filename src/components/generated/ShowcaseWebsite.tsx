@@ -1001,11 +1001,304 @@ const EXPERTISE_FEATURE_CARDS: ExpertiseFeatureCard[] = [{
   teaser: 'ESS, PAP, PPS — coordination pluridisciplinaire et lien fort entre familles, équipes et institutions.',
   details: ['Animation et participation aux réunions ESS', 'Rédaction et suivi des PAP / PPS', 'Formation et conseil aux équipes enseignantes', 'Médiation famille–école–médico-social']
 }];
+
+function ExpertiseDetailCard({
+  card,
+  animating,
+  variant = 'desktop',
+  activeIndex = 0,
+  total = EXPERTISE_FEATURE_CARDS.length,
+  onPrevious,
+  onNext,
+}: {
+  card: ExpertiseFeatureCard;
+  animating: boolean;
+  variant?: 'desktop' | 'mobile';
+  activeIndex?: number;
+  total?: number;
+  onPrevious?: () => void;
+  onNext?: () => void;
+}) {
+  return (
+    <div
+      style={{
+        opacity: animating ? 0 : 1,
+        transform: animating ? 'translateX(14px)' : 'translateX(0)',
+        transition: animating
+          ? 'opacity 100ms ease, transform 100ms ease'
+          : 'opacity 350ms cubic-bezier(0.16, 1, 0.3, 1), transform 350ms cubic-bezier(0.16, 1, 0.3, 1)',
+      }}
+    >
+      <div
+        className="expertise-card"
+        style={{
+          background: 'var(--white)',
+          borderRadius: variant === 'mobile' ? '16px' : '20px',
+          border: '1px solid var(--ds-border)',
+          padding: variant === 'mobile' ? '1.5rem' : '3rem',
+          minHeight: variant === 'mobile' ? 'auto' : '380px',
+          position: 'relative',
+          overflow: 'hidden',
+          boxShadow: '0 4px 32px oklch(0 0 0 / 0.06)',
+          height: '100%',
+          boxSizing: 'border-box',
+        }}
+      >
+        <span
+          className="expertise-card__watermark"
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            bottom: '-2rem',
+            right: '2rem',
+            fontFamily: "'Fraunces', serif",
+            fontWeight: 300,
+            fontSize: '14rem',
+            color: 'var(--sage-tint)',
+            lineHeight: 1,
+            pointerEvents: 'none',
+            userSelect: 'none',
+            zIndex: 0,
+          }}
+        >
+          {card.num}
+        </span>
+
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+            }}
+          >
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                fontFamily: "'Instrument Sans', sans-serif",
+                fontWeight: 600,
+                fontSize: '0.68rem',
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                color: 'var(--sage)',
+                background: 'var(--sage-tint)',
+                border: '1px solid var(--ds-border)',
+                borderRadius: '999px',
+                padding: '0.3rem 0.8rem',
+              }}
+            >
+              {card.tag}
+            </span>
+            <span
+              style={{
+                fontFamily: "'Fraunces', serif",
+                fontStyle: 'italic',
+                fontWeight: 300,
+                fontSize: '1rem',
+                color: 'var(--ink-soft)',
+              }}
+            >
+              {card.num}
+            </span>
+          </div>
+
+          <h3
+            style={{
+              fontFamily: "'Fraunces', serif",
+              fontWeight: 400,
+              fontSize: 'clamp(1.8rem, 3vw, 2.5rem)',
+              color: 'var(--ink)',
+              lineHeight: 1.05,
+              marginTop: '1.2rem',
+              marginBottom: 0,
+            }}
+          >
+            {card.title}
+          </h3>
+
+          <p
+            style={{
+              fontFamily: "'Instrument Sans', sans-serif",
+              fontWeight: 400,
+              fontSize: '1rem',
+              color: 'var(--ink-mid)',
+              lineHeight: 1.7,
+              marginTop: '0.9rem',
+              maxWidth: '480px',
+              marginBottom: 0,
+            }}
+          >
+            {card.teaser}
+          </p>
+
+          <hr
+            style={{
+              border: 'none',
+              height: '1.5px',
+              width: '56px',
+              background: 'var(--sage-dim)',
+              margin: '1.6rem 0',
+            }}
+          />
+
+          <ul
+            style={{
+              listStyle: 'none',
+              padding: 0,
+              margin: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.55rem',
+            }}
+          >
+            {card.details.map((detail) => (
+              <li
+                key={detail}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  gap: '0.7rem',
+                  alignItems: 'flex-start',
+                }}
+              >
+                <span
+                  style={{
+                    color: 'var(--sage)',
+                    fontFamily: "'Instrument Sans', sans-serif",
+                    fontWeight: 500,
+                    fontSize: '0.9rem',
+                    flexShrink: 0,
+                    marginTop: '0.15rem',
+                    lineHeight: 1,
+                  }}
+                >
+                  →
+                </span>
+                <span
+                  style={{
+                    fontFamily: "'Instrument Sans', sans-serif",
+                    fontWeight: 400,
+                    fontSize: '0.9rem',
+                    color: 'var(--ink-mid)',
+                    lineHeight: 1.55,
+                  }}
+                >
+                  {detail}
+                </span>
+              </li>
+            ))}
+          </ul>
+
+          <div
+            className={variant === 'mobile' ? 'expertise-mobile__footer' : undefined}
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginTop: '2.4rem',
+              paddingTop: '1.6rem',
+              borderTop: '1px solid var(--ds-border)',
+              flexWrap: 'wrap',
+              gap: '0.75rem',
+            }}
+          >
+            {variant === 'mobile' ? (
+              <>
+                <div className="expertise-mobile__nav">
+                  <button
+                    type="button"
+                    className="expertise-mobile__nav-btn"
+                    onClick={onPrevious}
+                    aria-label="Domaine précédent"
+                  >
+                    ← Préc.
+                  </button>
+                  <span className="expertise-mobile__counter" aria-hidden="true">
+                    {activeIndex + 1} / {total}
+                  </span>
+                  <button
+                    type="button"
+                    className="expertise-mobile__nav-btn"
+                    onClick={onNext}
+                    aria-label="Domaine suivant"
+                  >
+                    Suiv. →
+                  </button>
+                </div>
+                <a
+                  href="#contact"
+                  className="expertise-mobile__contact"
+                  style={{
+                    display: 'inline-block',
+                    fontFamily: "'Instrument Sans', sans-serif",
+                    fontWeight: 600,
+                    fontSize: '0.8rem',
+                    color: 'white',
+                    background: 'var(--sage)',
+                    padding: '0.55rem 1.2rem',
+                    borderRadius: '999px',
+                    textDecoration: 'none',
+                    flexShrink: 0,
+                  }}
+                >
+                  Me contacter →
+                </a>
+              </>
+            ) : (
+              <>
+                <span
+                  style={{
+                    fontFamily: "'Instrument Sans', sans-serif",
+                    fontStyle: 'italic',
+                    fontWeight: 400,
+                    fontSize: '0.78rem',
+                    color: 'var(--ink-soft)',
+                  }}
+                >
+                  Cliquez sur un domaine pour explorer
+                </span>
+                <a
+                  href="#contact"
+                  style={{
+                    display: 'inline-block',
+                    fontFamily: "'Instrument Sans', sans-serif",
+                    fontWeight: 600,
+                    fontSize: '0.8rem',
+                    color: 'white',
+                    background: 'var(--sage)',
+                    padding: '0.55rem 1.2rem',
+                    borderRadius: '999px',
+                    textDecoration: 'none',
+                    transition: 'background 220ms ease',
+                    flexShrink: 0,
+                  }}
+                  onMouseEnter={(e) =>
+                    ((e.currentTarget as HTMLAnchorElement).style.background =
+                      'oklch(0.48 0.09 152)')
+                  }
+                  onMouseLeave={(e) =>
+                    ((e.currentTarget as HTMLAnchorElement).style.background = 'var(--sage)')
+                  }
+                >
+                  Me contacter →
+                </a>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ExpertiseSection() {
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [animating, setAnimating] = React.useState(false);
   const [displayedIndex, setDisplayedIndex] = React.useState(0);
+  const isMobile = useIsMobile();
   const sectionRef = React.useRef<HTMLElement>(null);
+  const panelRef = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
@@ -1025,10 +1318,20 @@ function ExpertiseSection() {
       setDisplayedIndex(index);
       setActiveIndex(index);
       setAnimating(false);
+      if (isMobile) {
+        panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
     }, 120);
+  };
+  const goToPrevious = () => {
+    handleTabClick((activeIndex - 1 + EXPERTISE_FEATURE_CARDS.length) % EXPERTISE_FEATURE_CARDS.length);
+  };
+  const goToNext = () => {
+    handleTabClick((activeIndex + 1) % EXPERTISE_FEATURE_CARDS.length);
   };
   const card = EXPERTISE_FEATURE_CARDS[displayedIndex];
   const TAB_HEIGHT = 72;
+  const activeTabId = `expertise-tab-${card.id}`;
   return <section id="expertises" ref={sectionRef} aria-labelledby="expertises-heading" className="section-block" style={{
     background: 'var(--parchment)',
     padding: '7rem 7vw'
@@ -1060,7 +1363,70 @@ function ExpertiseSection() {
           Domaines de spécialisation
         </h2>
 
-        {/* Main layout: tabs + feature card */}
+        {isMobile ? (
+          <div className="reveal expertise-mobile" style={{ marginTop: '2rem' }}>
+            <p className="expertise-mobile__hint">
+              <strong>4 domaines</strong> · touchez une carte pour voir le détail
+            </p>
+
+            <div
+              role="tablist"
+              aria-label="Choisir un domaine de spécialisation"
+              className="expertise-mobile__grid"
+            >
+              {EXPERTISE_FEATURE_CARDS.map((tab, i) => {
+                const isActive = i === activeIndex;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    role="tab"
+                    id={`expertise-tab-${tab.id}`}
+                    aria-selected={isActive}
+                    aria-controls="expertise-panel"
+                    className={`expertise-mobile__chip${isActive ? ' is-active' : ''}`}
+                    onClick={() => handleTabClick(i)}
+                  >
+                    <span className="expertise-mobile__chip-num">{tab.num}</span>
+                    <span className="expertise-mobile__chip-tag">{tab.tag}</span>
+                    <span className="expertise-mobile__chip-title">{tab.title}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="expertise-mobile__dots" aria-hidden="true">
+              {EXPERTISE_FEATURE_CARDS.map((tab, i) => (
+                <span
+                  key={tab.id}
+                  className={`expertise-mobile__dot${i === activeIndex ? ' is-active' : ''}`}
+                />
+              ))}
+            </div>
+
+            <p className="sr-only" aria-live="polite">
+              Domaine {activeIndex + 1} sur {EXPERTISE_FEATURE_CARDS.length} : {card.title}
+            </p>
+
+            <div
+              ref={panelRef}
+              role="tabpanel"
+              id="expertise-panel"
+              aria-labelledby={activeTabId}
+              className="expertise-mobile__panel"
+            >
+              <ExpertiseDetailCard
+                card={card}
+                animating={animating}
+                variant="mobile"
+                activeIndex={activeIndex}
+                onPrevious={goToPrevious}
+                onNext={goToNext}
+              />
+            </div>
+          </div>
+        ) : (
+        /* Main layout: tabs + feature card — desktop */
         <div className="reveal expertise-grid" style={{
         display: 'grid',
         gridTemplateColumns: '300px 1fr',
@@ -1179,185 +1545,9 @@ function ExpertiseSection() {
           })}
           </div>
 
-          {/* RIGHT — Feature card */}
-          <div style={{
-          opacity: animating ? 0 : 1,
-          transform: animating ? 'translateX(14px)' : 'translateX(0)',
-          transition: animating ? 'opacity 100ms ease, transform 100ms ease' : 'opacity 350ms cubic-bezier(0.16, 1, 0.3, 1), transform 350ms cubic-bezier(0.16, 1, 0.3, 1)'
-        }}>
-            <div className="expertise-card" style={{
-            background: 'var(--white)',
-            borderRadius: '20px',
-            border: '1px solid var(--ds-border)',
-            padding: '3rem',
-            minHeight: '380px',
-            position: 'relative',
-            overflow: 'hidden',
-            boxShadow: '0 4px 32px oklch(0 0 0 / 0.06)',
-            height: '100%',
-            boxSizing: 'border-box'
-          }}>
-              {/* Decorative watermark number */}
-              <span className="expertise-card__watermark" aria-hidden="true" style={{
-              position: 'absolute',
-              bottom: '-2rem',
-              right: '2rem',
-              fontFamily: "'Fraunces', serif",
-              fontWeight: 300,
-              fontSize: '14rem',
-              color: 'var(--sage-tint)',
-              lineHeight: 1,
-              pointerEvents: 'none',
-              userSelect: 'none',
-              zIndex: 0
-            }}>
-                {card.num}
-              </span>
-
-              {/* Card content */}
-              <div style={{
-              position: 'relative',
-              zIndex: 1
-            }}>
-                <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'flex-start'
-              }}>
-                  <span style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  fontFamily: "'Instrument Sans', sans-serif",
-                  fontWeight: 600,
-                  fontSize: '0.68rem',
-                  letterSpacing: '0.18em',
-                  textTransform: 'uppercase',
-                  color: 'var(--sage)',
-                  background: 'var(--sage-tint)',
-                  border: '1px solid var(--ds-border)',
-                  borderRadius: '999px',
-                  padding: '0.3rem 0.8rem'
-                }}>
-                    {card.tag}
-                  </span>
-                  <span style={{
-                  fontFamily: "'Fraunces', serif",
-                  fontStyle: 'italic',
-                  fontWeight: 300,
-                  fontSize: '1rem',
-                  color: 'var(--ink-soft)'
-                }}>
-                    {card.num}
-                  </span>
-                </div>
-
-                <h3 style={{
-                fontFamily: "'Fraunces', serif",
-                fontWeight: 400,
-                fontSize: 'clamp(1.8rem, 3vw, 2.5rem)',
-                color: 'var(--ink)',
-                lineHeight: 1.05,
-                marginTop: '1.2rem',
-                marginBottom: 0
-              }}>
-                  {card.title}
-                </h3>
-
-                <p style={{
-                fontFamily: "'Instrument Sans', sans-serif",
-                fontWeight: 400,
-                fontSize: '1rem',
-                color: 'var(--ink-mid)',
-                lineHeight: 1.7,
-                marginTop: '0.9rem',
-                maxWidth: '480px',
-                marginBottom: 0
-              }}>
-                  {card.teaser}
-                </p>
-
-                <hr style={{
-                border: 'none',
-                height: '1.5px',
-                width: '56px',
-                background: 'var(--sage-dim)',
-                margin: '1.6rem 0'
-              }} />
-
-                <ul style={{
-                listStyle: 'none',
-                padding: 0,
-                margin: 0,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.55rem'
-              }}>
-                  {card.details.map(detail => <li key={detail} style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  gap: '0.7rem',
-                  alignItems: 'flex-start'
-                }}>
-                      <span style={{
-                    color: 'var(--sage)',
-                    fontFamily: "'Instrument Sans', sans-serif",
-                    fontWeight: 500,
-                    fontSize: '0.9rem',
-                    flexShrink: 0,
-                    marginTop: '0.15rem',
-                    lineHeight: 1
-                  }}>
-                        →
-                      </span>
-                      <span style={{
-                    fontFamily: "'Instrument Sans', sans-serif",
-                    fontWeight: 400,
-                    fontSize: '0.9rem',
-                    color: 'var(--ink-mid)',
-                    lineHeight: 1.55
-                  }}>
-                        {detail}
-                      </span>
-                    </li>)}
-                </ul>
-
-                <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginTop: '2.4rem',
-                paddingTop: '1.6rem',
-                borderTop: '1px solid var(--ds-border)'
-              }}>
-                  <span style={{
-                  fontFamily: "'Instrument Sans', sans-serif",
-                  fontStyle: 'italic',
-                  fontWeight: 400,
-                  fontSize: '0.78rem',
-                  color: 'var(--ink-soft)'
-                }}>
-                    Cliquez sur un domaine pour explorer
-                  </span>
-                  <a href="#contact" style={{
-                  display: 'inline-block',
-                  fontFamily: "'Instrument Sans', sans-serif",
-                  fontWeight: 600,
-                  fontSize: '0.8rem',
-                  color: 'white',
-                  background: 'var(--sage)',
-                  padding: '0.55rem 1.2rem',
-                  borderRadius: '999px',
-                  textDecoration: 'none',
-                  transition: 'background 220ms ease',
-                  flexShrink: 0
-                }} onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = 'oklch(0.48 0.09 152)'} onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = 'var(--sage)'}>
-                    Me contacter →
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
+          <ExpertiseDetailCard card={card} animating={animating} variant="desktop" />
         </div>
+        )}
       </div>
     </section>;
 }
