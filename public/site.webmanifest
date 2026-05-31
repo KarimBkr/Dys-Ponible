@@ -1,0 +1,24 @@
+{
+  "name": "Dys-ponible — Souhad Ayouaz",
+  "short_name": "Dys-ponible",
+  "description": "Dys-ponible : soutien scolaire spécialisé DYS, TSA, TDA/H et éducation inclusive",
+  "lang": "fr",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f0e8",
+  "theme_color": "#3d5a4c",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-touch-icon.svg",
+      "sizes": "180x180",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

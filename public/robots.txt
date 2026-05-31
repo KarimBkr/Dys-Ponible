@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://www.dys-ponible.fr/sitemap.xml
+
+# Crawlers IA (indexation optionnelle — retirer Disallow si vous souhaitez bloquer)
+User-agent: GPTBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
