@@ -2005,27 +2005,37 @@ function ContactForm() {
     setStatus('loading');
     setErrorMessage('');
 
+    const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;
+    if (!accessKey) {
+      setStatus('error');
+      setErrorMessage(
+        'Formulaire non configuré. Ajoutez VITE_WEB3FORMS_ACCESS_KEY dans Vercel (clé gratuite sur web3forms.com).',
+      );
+      return;
+    }
+
     try {
-      const response = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(SITE.email)}`, {
+      const response = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
         body: JSON.stringify({
+          access_key: accessKey,
+          subject: `Nouveau message — ${SITE.name}`,
+          from_name: form.name,
           name: form.name,
           email: form.email,
+          replyto: form.email,
           message: form.message,
-          _subject: `Nouveau message — ${SITE.name}`,
-          _replyto: form.email,
-          _template: 'table',
-          _captcha: 'false',
+          botcheck: false,
         }),
       });
 
-      const data = (await response.json()) as { success?: string; message?: string };
+      const data = (await response.json()) as { success?: boolean; message?: string };
 
-      if (!response.ok) {
+      if (!response.ok || !data.success) {
         throw new Error(data.message ?? 'Envoi impossible. Réessayez plus tard.');
       }
 
@@ -2079,8 +2089,8 @@ function ContactForm() {
         Envoyer un message
       </h3>
       <input
-        type="text"
-        name="_honey"
+        type="checkbox"
+        name="botcheck"
         tabIndex={-1}
         autoComplete="off"
         aria-hidden="true"
@@ -2163,17 +2173,6 @@ function ContactForm() {
       >
         {status === 'loading' ? 'Envoi en cours…' : 'Envoyer →'}
       </button>
-      <p
-        style={{
-          margin: '0.75rem 0 0',
-          fontFamily: "'Instrument Sans', sans-serif",
-          fontSize: '0.7rem',
-          color: 'oklch(0.55 0.01 255)',
-          lineHeight: 1.5,
-        }}
-      >
-        Premier envoi : FormSubmit vous demandera une confirmation par email (une seule fois).
-      </p>
     </form>;
 }
 function FaqSection() {
