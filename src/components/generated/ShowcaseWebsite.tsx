@@ -1,6 +1,9 @@
 import * as React from 'react';
+import { createPortal } from 'react-dom';
+import { Menu, X } from 'lucide-react';
 import { Seo } from '@/components/Seo';
 import { FAQ_ITEMS, SITE } from '@/seo/site';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 /* ═══════════════════════════════════════════════════
    TYPES
@@ -209,6 +212,8 @@ function useReveal(ref: React.RefObject<HTMLElement | null>) {
 
 function StickyHeader() {
   const [visible, setVisible] = React.useState(false);
+  const [menuOpen, setMenuOpen] = React.useState(false);
+  const isMobile = useIsMobile();
   const [scrollProgress, setScrollProgress] = React.useState(0);
   const [activeSection, setActiveSection] = React.useState('');
   const [indicatorStyle, setIndicatorStyle] = React.useState({
@@ -216,6 +221,7 @@ function StickyHeader() {
     width: 0
   });
   const [indicatorReady, setIndicatorReady] = React.useState(false);
+  const headerRef = React.useRef<HTMLElement>(null);
   const navLinks = [{
     id: 'about',
     href: '#about',
@@ -287,7 +293,68 @@ function StickyHeader() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeSection]);
-  return <header style={{
+  React.useEffect(() => {
+    document.body.style.overflow = menuOpen ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [menuOpen]);
+  React.useEffect(() => {
+    if (!menuOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMenuOpen(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [menuOpen]);
+  React.useEffect(() => {
+    if (!isMobile) setMenuOpen(false);
+  }, [isMobile]);
+  const closeMenu = () => setMenuOpen(false);
+  const showHeader = isMobile || visible || menuOpen;
+
+  const mobileMenu = menuOpen
+    ? createPortal(
+        <>
+          <button
+            type="button"
+            className="site-header__backdrop"
+            aria-label="Fermer le menu"
+            onClick={closeMenu}
+          />
+          <nav
+            id="mobile-nav"
+            className="site-header__mobile-nav"
+            aria-label="Navigation mobile"
+            style={{ top: headerRef.current?.offsetHeight ?? 57 }}
+          >
+            {navLinks.map((link) => {
+              const isActive = activeSection === link.id;
+              return (
+                <a
+                  key={link.id}
+                  href={link.href}
+                  className={isActive ? 'is-active' : undefined}
+                  onClick={closeMenu}
+                >
+                  {link.label}
+                </a>
+              );
+            })}
+            <a href="#contact" className="site-header__mobile-cta" onClick={closeMenu}>
+              Me contacter
+            </a>
+          </nav>
+        </>,
+        document.body,
+      )
+    : null;
+
+  return <>
+    <header
+      ref={headerRef}
+      className="site-header"
+      style={{
     position: 'fixed',
     top: 0,
     left: 0,
@@ -301,7 +368,7 @@ function StickyHeader() {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    transform: visible ? 'translateY(0)' : 'translateY(-100%)',
+    transform: showHeader ? 'translateY(0)' : 'translateY(-100%)',
     transition: 'transform 350ms ease'
   }}>
       {/* Scroll progress bar */}
@@ -336,13 +403,13 @@ function StickyHeader() {
         {SITE.name}
       </a>
 
-      <div style={{
+      <div className="site-header__actions" style={{
       display: 'flex',
       alignItems: 'center',
       gap: '1.5rem'
     }}>
-        {/* Nav links wrapper */}
-        <div style={{
+        {/* Nav links wrapper — desktop */}
+        <div className="site-header__nav site-header__nav--desktop" style={{
         position: 'relative',
         display: 'flex',
         alignItems: 'center',
@@ -379,8 +446,8 @@ function StickyHeader() {
         }} />}
         </div>
 
-        {/* CTA pill */}
-        <a href="#contact" style={{
+        {/* CTA pill — desktop */}
+        <a href="#contact" className="site-header__cta site-header__cta--desktop" style={{
         fontFamily: "'Instrument Sans', sans-serif",
         fontWeight: 600,
         fontSize: '0.82rem',
@@ -393,8 +460,21 @@ function StickyHeader() {
       }} onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = 'oklch(0.48 0.09 152)'} onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = 'var(--sage)'}>
           Me contacter
         </a>
+
+        <button
+          type="button"
+          className="site-header__menu-btn"
+          aria-expanded={menuOpen}
+          aria-controls="mobile-nav"
+          aria-label={menuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+          onClick={() => setMenuOpen((open) => !open)}
+        >
+          {menuOpen ? <X size={20} strokeWidth={2} /> : <Menu size={20} strokeWidth={2} />}
+        </button>
       </div>
-    </header>;
+    </header>
+    {mobileMenu}
+  </>;
 }
 
 /* ═══════════════════════════════════════════════════
@@ -404,6 +484,7 @@ function StickyHeader() {
 function HeroSection() {
   return <section
     aria-labelledby="hero-heading"
+    className="hero-section"
     style={{
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
@@ -413,7 +494,7 @@ function HeroSection() {
     overflow: 'hidden'
   }}>
       {/* Left — text */}
-      <div style={{
+      <div className="hero-section__text" style={{
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'center',
@@ -551,7 +632,7 @@ function HeroSection() {
         </div>
 
         {/* Scroll hint */}
-        <div className="hero-anim hero-anim-5" style={{
+        <div className="hero-scroll-hint hero-anim hero-anim-5" style={{
         position: 'absolute',
         bottom: '2.5rem',
         left: '7vw',
@@ -577,7 +658,7 @@ function HeroSection() {
       </div>
 
       {/* Right — citation */}
-      <div style={{
+      <div className="hero-section__visual" style={{
       backgroundImage: ['linear-gradient(oklch(0.55 0.09 152) 0%, oklch(0.44 0.10 158) 100%)', 'repeating-linear-gradient(0deg, transparent, transparent 39px, oklch(1 0 0 / 0.04) 40px)', 'repeating-linear-gradient(90deg, transparent, transparent 39px, oklch(1 0 0 / 0.04) 40px)'].join(', '),
       display: 'flex',
       flexDirection: 'column',
@@ -647,11 +728,11 @@ function HeroSection() {
 function AboutSection() {
   const ref = React.useRef<HTMLElement>(null);
   useReveal(ref as React.RefObject<HTMLElement>);
-  return <section id="about" ref={ref} aria-labelledby="about-heading" style={{
+  return <section id="about" ref={ref} aria-labelledby="about-heading" className="section-block" style={{
     background: 'var(--white)',
     padding: '7rem 7vw'
   }}>
-      <div style={{
+      <div className="about-grid" style={{
       display: 'grid',
       gridTemplateColumns: '1fr 1.1fr 1.4fr',
       gap: '3rem',
@@ -685,11 +766,14 @@ function AboutSection() {
         </div>
 
         {/* Centre — aides visuelles */}
-        <div className="reveal" style={{
-          borderRadius: '14px',
-          overflow: 'hidden',
-          boxShadow: '0 8px 32px oklch(0.2 0.02 255 / 0.08)',
-        }}>
+        <div
+          className="about-grid__image reveal"
+          style={{
+            borderRadius: '14px',
+            overflow: 'hidden',
+            boxShadow: '0 8px 32px oklch(0.2 0.02 255 / 0.08)',
+          }}
+        >
           <img
             src={SITE_IMAGES.ideogrammes}
             alt="Aides visuelles et idéogrammes pour la construction de phrases — méthode pédagogique adaptée"
@@ -759,7 +843,7 @@ function AboutSection() {
 function EnImagesSection() {
   const ref = React.useRef<HTMLElement>(null);
   useReveal(ref as React.RefObject<HTMLElement>);
-  return <section id="en-images" ref={ref} style={{
+  return <section id="en-images" ref={ref} className="section-block section-block--compact" style={{
     background: 'var(--white)',
     padding: '5rem 7vw'
   }}>
@@ -802,7 +886,7 @@ function EnImagesSection() {
         </p>
 
         {/* Galerie — photos de séances */}
-        <div style={{
+        <div className="gallery-grid" style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(3, 1fr)',
         gap: '1rem',
@@ -945,7 +1029,7 @@ function ExpertiseSection() {
   };
   const card = EXPERTISE_FEATURE_CARDS[displayedIndex];
   const TAB_HEIGHT = 72;
-  return <section id="expertises" ref={sectionRef} aria-labelledby="expertises-heading" style={{
+  return <section id="expertises" ref={sectionRef} aria-labelledby="expertises-heading" className="section-block" style={{
     background: 'var(--parchment)',
     padding: '7rem 7vw'
   }}>
@@ -977,7 +1061,7 @@ function ExpertiseSection() {
         </h2>
 
         {/* Main layout: tabs + feature card */}
-        <div className="reveal" style={{
+        <div className="reveal expertise-grid" style={{
         display: 'grid',
         gridTemplateColumns: '300px 1fr',
         gap: '4rem',
@@ -985,14 +1069,13 @@ function ExpertiseSection() {
         marginTop: '3.5rem'
       }}>
           {/* LEFT — Tab navigation */}
-          <div style={{
+          <div className="expertise-tabs" style={{
           display: 'flex',
           flexDirection: 'column',
           gap: 0,
           position: 'relative'
         }}>
-            {/* Vertical sage track line */}
-            <div aria-hidden="true" style={{
+            <div className="expertise-tabs__track" aria-hidden="true" style={{
             position: 'absolute',
             left: 0,
             top: 0,
@@ -1001,8 +1084,7 @@ function ExpertiseSection() {
             background: 'var(--sage-tint)',
             borderRadius: '1px'
           }} />
-            {/* Active indicator that slides */}
-            <div aria-hidden="true" style={{
+            <div className="expertise-tabs__track expertise-tabs__track--active" aria-hidden="true" style={{
             position: 'absolute',
             left: 0,
             width: '2px',
@@ -1015,7 +1097,7 @@ function ExpertiseSection() {
 
             {EXPERTISE_FEATURE_CARDS.map((tab, i) => {
             const isActive = i === activeIndex;
-            return <button key={tab.id} onClick={() => handleTabClick(i)} aria-selected={isActive} style={{
+            return <button key={tab.id} type="button" className="expertise-tab-btn" onClick={() => handleTabClick(i)} aria-selected={isActive} style={{
               display: 'flex',
               alignItems: 'center',
               gap: '1rem',
@@ -1069,7 +1151,7 @@ function ExpertiseSection() {
                 }}>
                         {tab.tag}
                       </span>}
-                    <span style={{
+                    <span className="expertise-tab-title" style={{
                   fontFamily: "'Instrument Sans', sans-serif",
                   fontWeight: 600,
                   fontSize: '0.9rem',
@@ -1103,7 +1185,7 @@ function ExpertiseSection() {
           transform: animating ? 'translateX(14px)' : 'translateX(0)',
           transition: animating ? 'opacity 100ms ease, transform 100ms ease' : 'opacity 350ms cubic-bezier(0.16, 1, 0.3, 1), transform 350ms cubic-bezier(0.16, 1, 0.3, 1)'
         }}>
-            <div style={{
+            <div className="expertise-card" style={{
             background: 'var(--white)',
             borderRadius: '20px',
             border: '1px solid var(--ds-border)',
@@ -1116,7 +1198,7 @@ function ExpertiseSection() {
             boxSizing: 'border-box'
           }}>
               {/* Decorative watermark number */}
-              <span aria-hidden="true" style={{
+              <span className="expertise-card__watermark" aria-hidden="true" style={{
               position: 'absolute',
               bottom: '-2rem',
               right: '2rem',
@@ -1512,7 +1594,7 @@ function VideoCardItem({
 function RessourcesSection() {
   const ref = React.useRef<HTMLElement>(null);
   useReveal(ref as React.RefObject<HTMLElement>);
-  return <section id="ressources" ref={ref} style={{
+  return <section id="ressources" ref={ref} className="section-block section-block--compact" style={{
     background: 'var(--sage-tint)',
     padding: '6rem 7vw'
   }}>
@@ -1555,7 +1637,7 @@ function RessourcesSection() {
         </p>
 
         {/* Video cards grid */}
-        <div style={{
+        <div className="cards-grid cards-grid--3" style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(3, 1fr)',
         gap: '1.5rem',
@@ -1576,7 +1658,7 @@ function RessourcesSection() {
 function FormationsSection() {
   const ref = React.useRef<HTMLElement>(null);
   useReveal(ref as React.RefObject<HTMLElement>);
-  return <section id="formations" ref={ref} style={{
+  return <section id="formations" ref={ref} className="section-block" style={{
     background: 'var(--sage-tint)',
     padding: '7rem 7vw'
   }}>
@@ -1607,7 +1689,7 @@ function FormationsSection() {
         </h2>
 
         {/* Cards grid */}
-        <div style={{
+        <div className="cards-grid cards-grid--3" style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(3, 1fr)',
         gap: '1.5rem',
@@ -1912,6 +1994,7 @@ function FaqSection() {
       id="faq"
       ref={ref}
       aria-labelledby="faq-heading"
+      className="section-block section-block--compact"
       style={{ background: 'var(--white)', padding: '5rem 7vw' }}
     >
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
@@ -1987,7 +2070,7 @@ function FaqSection() {
 function ContactSection() {
   const ref = React.useRef<HTMLElement>(null);
   useReveal(ref as React.RefObject<HTMLElement>);
-  return <section id="contact" ref={ref} style={{
+  return <section id="contact" ref={ref} className="section-block" style={{
     background: 'var(--ink)',
     padding: '7rem 7vw',
     color: 'white'
@@ -2022,7 +2105,7 @@ function ContactSection() {
         </h2>
 
         {/* Two-col layout */}
-        <div style={{
+        <div className="contact-grid" style={{
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
         gap: '5rem',
@@ -2114,7 +2197,7 @@ function ContactSection() {
 ═══════════════════════════════════════════════════ */
 
 function SiteFooter() {
-  return <footer style={{
+  return <footer className="site-footer" style={{
     background: 'var(--ink)',
     borderTop: '1px solid oklch(0.26 0.02 255)',
     padding: '1.8rem 7vw',

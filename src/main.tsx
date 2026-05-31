@@ -53,6 +53,7 @@ mediaQuery.addEventListener('change', forceLightMode);
 import { createRoot } from 'react-dom/client';
 import { setSiteUrl } from './seo/site';
 import './index.css';
+import './showcase-responsive.css';
 import App from './App.tsx';
 
 if (import.meta.env.VITE_SITE_URL) {
